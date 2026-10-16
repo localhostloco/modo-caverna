@@ -47,6 +47,8 @@ p{margin:0}
 .risco.hoje{outline:2px solid var(--ink);outline-offset:2px}
 .periodo{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:12px;font:500 .78rem/1.4 var(--f-mono);color:var(--muted)}
 .status::before{content:"● ";color:var(--good)}
+.lnk{background:none;border:0;padding:0;font:inherit;color:inherit;text-decoration:underline;text-underline-offset:2px;cursor:pointer}
+.lnk:hover{color:var(--ink)}
 
 /* Abas */
 nav.abas{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);margin-top:18px;padding-block:8px;border-bottom:1px solid var(--line);display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
@@ -263,7 +265,7 @@ function normalizar(s){
 
 /* ---------- Estado e gravação ---------- */
 let state,ref=null,salvando=false,pendente=false,timer=null,statusTxt='Salvo neste aparelho';
-const ui={aba:'hoje',dia:null,exp:{base:true,acao:true,apoio:true,comp:false},ia:{foco:'auditoria',hist:true},imp:null,respTxt:'',aplicado:null,desfazer:null};
+const ui={aba:'hoje',dia:null,exp:{base:true,acao:true,apoio:true,comp:false},ia:{foco:'auditoria',hist:true},imp:null,respTxt:'',aplicado:null,desfazer:null,bk:null,bkTxt:'',bkFeito:false,bkDesfazer:null,bkOk:''};
 function lerLocal(){try{const r=localStorage.getItem(LS);return r?normalizar(JSON.parse(r)):null}catch(e){return null}}
 function gravarLocal(){try{localStorage.setItem(LS,JSON.stringify(state))}catch(e){}}
 function setStatus(t){statusTxt=t;const el=document.getElementById('status');if(el)el.textContent=t}
@@ -344,7 +346,7 @@ function renderTopo(){
     <div class="contador"><span class="num">${num}</span><span class="sub">${sub}</span></div>
   </header>
   <div class="tally" title="Cada risco é um dia do ciclo; quanto mais forte, mais você cumpriu">${tally}</div>
-  <p class="periodo"><span>${fmt(state.inicio,{day:'numeric',month:'short',year:'numeric'})} → ${fmt(fim,{day:'numeric',month:'short',year:'numeric'})}</span><span class="status" id="status">${esc(statusTxt)}</span></p>`;
+  <p class="periodo"><span>${fmt(state.inicio,{day:'numeric',month:'short',year:'numeric'})} → ${fmt(fim,{day:'numeric',month:'short',year:'numeric'})}</span><span class="status" id="status">${esc(statusTxt)}</span><button class="lnk" data-tab="guia" data-goto="backup">Usar em outro aparelho</button></p>`;
   document.getElementById('faixa').innerHTML=state.exemplo?`
   <div class="exemplo"><p><b>Plano de exemplo.</b> Os dados abaixo mostram como a página funciona. Comece do zero ou edite a partir dele.</p>
   <div class="row"><button class="btn ghost" data-tab="guia">Como usar</button><button class="btn" data-act="zerar">Começar do zero</button><button class="btn pri" data-act="manter">Editar a partir dele</button></div></div>`:'';
@@ -631,20 +633,30 @@ function blocoExportar(){
     </div>
   </section>`;
 }
-async function exportarCsv(){
-  const msg=document.getElementById('exp-msg'),csv=gerarCsv();
-  let dl=null;try{dl=window.claude&&window.claude.use?await window.claude.use('downloads'):null}catch(_){}
-  if(!dl){mostrarTexto(csv,'O download não está disponível aqui. Copie o texto abaixo, cole num editor e salve como modo-caverna.csv.');return}
-  try{await dl.save({filename:'modo-caverna.csv',data:csv});msg.textContent='Arquivo modo-caverna.csv salvo. Agora importe pelo Google Agenda no computador.'}
-  catch(e){
-    const c=e&&e.code;
-    if(c==='declined')msg.textContent='Download cancelado.';
-    else if(c==='rate_limited')msg.textContent='Já há um download aguardando confirmação. Responda a ele e tente de novo.';
-    else mostrarTexto(csv,'Não foi possível baixar o arquivo aqui. Copie o texto abaixo, cole num editor e salve como modo-caverna.csv.');
+/* Baixa um arquivo: usa o download do Claude quando existe; fora dele, o download normal do navegador.
+   Retorna 'ok', 'declined', 'rate_limited' ou 'falhou' (aí quem chamou mostra o texto para copiar). */
+async function baixar(nome,texto,tipo){
+  if(window.claude){
+    let dl=null;try{dl=window.claude.use?await window.claude.use('downloads'):null}catch(_){}
+    if(!dl)return'falhou';
+    try{await dl.save({filename:nome,data:texto});return'ok'}
+    catch(e){const c=e&&e.code;return c==='declined'||c==='rate_limited'?c:'falhou'}
   }
+  try{
+    const u=URL.createObjectURL(new Blob([texto],{type:tipo})),a=document.createElement('a');
+    a.href=u;a.download=nome;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1000);
+    return'ok';
+  }catch(_){return'falhou'}
 }
-function mostrarTexto(txt,aviso){
-  const ta=document.getElementById('exp-txt'),msg=document.getElementById('exp-msg');
+const MSG_DL={declined:'Download cancelado.',rate_limited:'Já há um download aguardando confirmação. Responda a ele e tente de novo.'};
+async function exportarCsv(){
+  const msg=document.getElementById('exp-msg'),csv=gerarCsv(),r=await baixar('modo-caverna.csv',csv,'text/csv;charset=utf-8');
+  if(r==='ok')msg.textContent='Arquivo modo-caverna.csv salvo. Agora importe pelo Google Agenda no computador.';
+  else if(MSG_DL[r])msg.textContent=MSG_DL[r];
+  else mostrarTexto(csv,'Não foi possível baixar o arquivo aqui. Copie o texto abaixo, cole num editor e salve como modo-caverna.csv.');
+}
+function mostrarTexto(txt,aviso,pre='exp'){
+  const ta=document.getElementById(pre+'-txt'),msg=document.getElementById(pre+'-msg');
   ta.value=txt;ta.hidden=false;ta.focus();ta.select();msg.textContent=aviso;
 }
 function copiarIcs(){
@@ -652,6 +664,95 @@ function copiarIcs(){
   const ok='Texto .ics copiado. Cole num editor de texto, salve como modo-caverna.ics e importe no Google Agenda.';
   const falha=()=>mostrarTexto(ics,'Selecione e copie o texto abaixo, cole num editor e salve como modo-caverna.ics.');
   try{navigator.clipboard.writeText(ics).then(()=>{msg.textContent=ok;document.getElementById('exp-txt').hidden=true},falha)}catch(_){falha()}
+}
+
+/* ---------- Backup entre aparelhos ---------- */
+const backupTxt=()=>JSON.stringify({app:'modo-caverna',formato:1,exportado:new Date().toISOString(),state},null,2);
+async function exportarBackup(){
+  const txt=backupTxt(),nome='modo-caverna-backup-'+hoje()+'.json',msg=document.getElementById('bk-msg'),r=await baixar(nome,txt,'application/json');
+  if(r==='ok')msg.textContent=`Arquivo ${nome} salvo. Leve-o para o outro aparelho e importe lá, no passo 2.`;
+  else if(MSG_DL[r])msg.textContent=MSG_DL[r];
+  else mostrarTexto(txt,'Não foi possível baixar o arquivo aqui. Use o texto abaixo: copie e cole no passo 2 do outro aparelho.','bk');
+}
+function copiarBackup(){
+  const txt=backupTxt(),msg=document.getElementById('bk-msg');
+  const falha=()=>mostrarTexto(txt,'Selecione e copie o texto abaixo e envie para você mesmo (e-mail, WhatsApp, notas).','bk');
+  try{navigator.clipboard.writeText(txt).then(()=>{msg.textContent='Backup copiado. Envie o texto para você mesmo (e-mail, WhatsApp, notas) e cole no passo 2 do outro aparelho.';document.getElementById('bk-txt').hidden=true},falha)}catch(_){falha()}
+}
+/* Aceita o arquivo de backup ou um estado solto; devolve {state, exportado} ou lança a mensagem de erro */
+function lerBackup(txt){
+  let o;try{o=JSON.parse(String(txt).trim())}catch(e){throw'Não consegui ler o backup. Confira se copiou o texto inteiro, do primeiro { ao último }.'}
+  if(!o||typeof o!=='object'||Array.isArray(o))throw'Isso não parece um backup do Modo Caverna.';
+  let s=o,em=null;
+  if(o.app==='modo-caverna'){
+    if(+o.formato>1)throw'Este backup foi feito por uma versão mais nova da página. Recarregue a página e tente de novo.';
+    s=o.state;em=typeof o.exportado==='string'?o.exportado:null;
+  }
+  if(!s||typeof s!=='object'||typeof s.inicio!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(s.inicio)||!Array.isArray(s.metas)||!Array.isArray(s.acoes))throw'Isso não parece um backup do Modo Caverna.';
+  const st=normalizar(s);
+  ['metas','acoes'].forEach(k=>{st[k]=st[k].filter(x=>x&&typeof x==='object')});
+  return{state:st,exportado:em};
+}
+async function lerArquivoBackup(el){
+  const f=el.files&&el.files[0];if(!f)return;
+  if(f.size>5e6){mostrarErroBk('Arquivo grande demais para ser um backup do Modo Caverna.');return}
+  let txt;try{txt=await f.text()}catch(_){mostrarErroBk('Não consegui abrir o arquivo.');return}
+  verificarBackup(txt);
+}
+function mostrarErroBk(t){const er=document.getElementById('bk-erro');if(er)er.textContent=t}
+function verificarBackup(txt){
+  if(!String(txt||'').trim()){mostrarErroBk('Cole o texto do backup ou escolha o arquivo.');return}
+  try{ui.bk=lerBackup(txt)}catch(e){ui.bk=null;mostrarErroBk(typeof e==='string'?e:'Não consegui ler o backup.');return}
+  ui.bkOk='';renderAba();irPara('bk-imp');
+}
+function aplicarBackup(){
+  if(!ui.bk)return;
+  ui.bkDesfazer=JSON.parse(JSON.stringify(state));state=ui.bk.state;
+  ui.bk=null;ui.bkTxt='';ui.bkFeito=true;ui.dia=null;ui.imp=null;ui.aplicado=null;ui.desfazer=null;
+  agendar();render();irPara('bk-imp');
+}
+function desfazerBackup(){
+  if(!ui.bkDesfazer)return;
+  state=normalizar(ui.bkDesfazer);ui.bkDesfazer=null;ui.bkFeito=false;ui.bkOk='Importação desfeita. Os dados anteriores deste aparelho voltaram.';ui.dia=null;
+  agendar();render();irPara('bk-imp');
+}
+function irPara(id){const el=document.getElementById(id);if(el)el.scrollIntoView({block:'start',behavior:'smooth'})}
+function resumoBackup(s){
+  const n=s.metas.filter(m=>m.texto).length,d=Object.keys(s.log).length;
+  return`ciclo a partir de ${fmt(s.inicio,{day:'numeric',month:'short',year:'numeric'})} · ${n} meta${n===1?'':'s'} · ${d} dia${d===1?'':'s'} registrado${d===1?'':'s'}`+(s.exemplo?' · plano de exemplo':'');
+}
+function blocoBackup(){
+  let imp;
+  if(ui.bkFeito)imp=`
+      <p class="ok">Backup importado. Confira as abas e, se algo estiver errado, desfaça.</p>
+      <div class="row">${ui.bkDesfazer?'<button class="btn" data-act="bk-desfazer">Desfazer importação</button>':''}<button class="btn ghost" data-act="bk-fechar">Fechar</button></div>`;
+  else if(ui.bk){const em=ui.bk.exportado?new Date(ui.bk.exportado):null;imp=`
+      <div class="campo"><span>Backup${em&&!isNaN(em)?' de '+esc(em.toLocaleDateString('pt-BR',{day:'numeric',month:'short'}).replace('.','')+' às '+em.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})):''}</span><p>${esc(resumoBackup(ui.bk.state))}</p></div>
+      <div class="campo"><span>Neste aparelho agora</span><p>${esc(resumoBackup(state))}</p></div>
+      <p class="aviso">Importar substitui todos os dados deste aparelho pelos do backup.</p>
+      <div class="row"><button class="btn pri" data-act="bk-aplicar">Substituir pelos dados do backup</button><button class="btn ghost" data-act="bk-cancelar">Cancelar</button></div>`}
+  else imp=`
+      <p>Escolha o arquivo de backup ou cole o texto copiado no outro aparelho.</p>
+      <label class="campo"><span>Arquivo de backup (.json)</span><input type="file" id="bk-arq" accept=".json,application/json,text/plain"></label>
+      <label class="campo"><span>Ou cole o texto</span><textarea id="bk-cola" placeholder='{"app": "modo-caverna", …}' style="font-family:var(--f-mono);font-size:.8rem">${esc(ui.bkTxt)}</textarea></label>
+      <div class="row"><button class="btn pri" data-act="bk-verificar">Verificar backup</button></div>
+      ${ui.bkOk?`<p class="ok" role="status">${esc(ui.bkOk)}</p>`:''}
+      <p id="bk-erro" class="aviso" role="alert"></p>`;
+  return`
+  <section id="backup">
+    <h2>Levar para outro aparelho</h2>
+    <p class="intro">Para continuar no celular ou em outro computador, exporte aqui e importe lá. Faça o mesmo sempre que trocar de aparelho, para levar o progresso mais recente.</p>
+    <div class="exportar">
+      <h3>1. Exportar deste aparelho</h3>
+      <p>O backup leva o plano inteiro: metas, rotina, checklists marcados e revisões.</p>
+      <div class="row"><button class="btn pri" data-act="bk-baixar">Baixar backup (.json)</button><button class="btn" data-act="bk-copiar">Copiar como texto</button></div>
+      <p id="bk-msg" class="muted" style="font-size:.88rem" role="status"></p>
+      <textarea id="bk-txt" readonly hidden aria-label="Backup para copiar" style="font-family:var(--f-mono);font-size:.75rem;min-height:140px"></textarea>
+    </div>
+    <div class="exportar" id="bk-imp">
+      <h3>2. Importar no outro aparelho</h3>${imp}
+    </div>
+  </section>`;
 }
 
 /* ---------- Auditoria com IA ---------- */
@@ -1066,8 +1167,9 @@ function abaGuia(){
   </section>
   <section>
     <h2>Onde ficam seus dados</h2>
-    <p class="intro">Tudo é salvo de forma privada na sua conta, e também neste aparelho como reserva. O indicador ao lado das datas, no topo, mostra onde foi salvo por último.</p>
-  </section>`;
+    <p class="intro">${ref?'Tudo é salvo de forma privada na sua conta, e também neste aparelho como reserva.':'Tudo é salvo só neste navegador, sem conta e sem servidor. Outro aparelho ou outro navegador começa vazio: use o backup abaixo para levar seus dados.'} O indicador ao lado das datas, no topo, mostra onde foi salvo por último.</p>
+  </section>
+  ${blocoBackup()}`;
 }
 
 function abaRotina(){
@@ -1159,9 +1261,10 @@ function aoEditar(el){
   atualizarDerivados();
 }
 
-document.addEventListener('input',e=>{const el=e.target;if(el.id==='ia-resp'){ui.respTxt=el.value;const er=document.getElementById('ia-erro');if(er)er.textContent='';return}if(el.tagName==='SELECT'||el.type==='checkbox')return;aoEditar(el)});
+document.addEventListener('input',e=>{const el=e.target;if(el.id==='bk-cola'){ui.bkTxt=el.value;mostrarErroBk('');return}if(el.id==='ia-resp'){ui.respTxt=el.value;const er=document.getElementById('ia-erro');if(er)er.textContent='';return}if(el.tagName==='SELECT'||el.type==='checkbox')return;aoEditar(el)});
 document.addEventListener('change',e=>{
   const el=e.target;
+  if(el.id==='bk-arq'){lerArquivoBackup(el);return}
   if(el.dataset.chk){
     const d=ui.dia;state.log[d]=state.log[d]||{};
     if(el.checked)state.log[d][el.dataset.chk]=true;else delete state.log[d][el.dataset.chk];
@@ -1193,6 +1296,13 @@ document.addEventListener('click',e=>{
   if(a==='ia-desfazer'){desfazerImportacao();return}
   if(a==='ia-fechar'){ui.aplicado=null;ui.desfazer=null;renderAba();return}
   if(a==='exp-ics'){copiarIcs();return}
+  if(a==='bk-baixar'){exportarBackup();return}
+  if(a==='bk-copiar'){copiarBackup();return}
+  if(a==='bk-verificar'){verificarBackup(ui.bkTxt);return}
+  if(a==='bk-aplicar'){aplicarBackup();return}
+  if(a==='bk-cancelar'){ui.bk=null;renderAba();irPara('bk-imp');return}
+  if(a==='bk-desfazer'){desfazerBackup();return}
+  if(a==='bk-fechar'){ui.bkFeito=false;ui.bkDesfazer=null;renderAba();return}
   state.exemplo=false;
   if(a==='area'){const v=t.dataset.v,i=state.areas.indexOf(v);i<0?state.areas.push(v):state.areas.splice(i,1)}
   if(a==='add-area'){const inp=document.getElementById('nova-area'),v=(inp.value||'').trim();if(!v)return;if(!AREAS.concat(state.areasExtra).includes(v))state.areasExtra.push(v);if(!state.areas.includes(v))state.areas.push(v)}
