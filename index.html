@@ -1,4 +1,14 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html><html lang="pt-BR"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#E8E9E4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#131514" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Caverna">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+</head><body>
 <title>Modo Caverna</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -112,6 +122,11 @@ ul.lista{list-style:none;margin:0;padding:0;display:grid;gap:8px}
 .item .txt small{color:var(--muted);font-size:.84rem}
 .item.feito .txt b{text-decoration:line-through;text-decoration-color:var(--muted)}
 .item .hora{font:500 .85rem/1 var(--f-mono);color:var(--muted)}
+.item .txt em.dois{font-style:normal;font-weight:600;color:var(--warn)}
+.dois-aviso{border-left:3px solid var(--warn);padding:8px 0 8px 12px;font-size:.92rem;max-width:62ch}
+.dois-aviso b{color:var(--warn)}
+.exc-ctl{font-size:.85rem}
+.placar .big.exc-big{color:var(--muted);font-size:2.4rem}
 .vazio{border:1px dashed var(--line);border-radius:var(--r);padding:16px;color:var(--muted);font-size:.9rem}
 
 /* Rotina */
@@ -153,6 +168,7 @@ a.gcal:hover{text-decoration:underline}
 .cel{height:24px;border-radius:4px;background:var(--line)}
 .cel.fut{background:transparent;box-shadow:inset 0 0 0 1px var(--line)}
 .cel.hoje{outline:2px solid var(--ink);outline-offset:1px}
+.risco.exc,.cel.exc,.exc-i{background:repeating-linear-gradient(135deg,var(--line) 0 2px,transparent 2px 5px)!important;box-shadow:inset 0 0 0 1px var(--line)}
 .grade .pct{font:500 .8rem/1 var(--f-mono);text-align:right;padding-left:6px;font-variant-numeric:tabular-nums}
 .grade .atual{color:var(--accent);font-weight:600}
 details.sem{background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
@@ -162,6 +178,21 @@ details.sem summary b{font-weight:600}
 details.sem .corpo{padding:0 14px 14px;display:grid;gap:12px}
 .leg{display:flex;gap:14px;flex-wrap:wrap;font:500 .72rem/1 var(--f-mono);color:var(--muted);align-items:center}
 .leg i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-2px;margin-right:4px}
+
+/* Revisão: resumo, aderência, progresso, ciclos */
+ul.resumo{margin:0;padding-left:18px;color:var(--muted);font-size:.88rem;display:grid;gap:2px}
+ul.ader{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+ul.ader li{display:grid;grid-template-columns:minmax(0,1fr) minmax(56px,28%) 6.6em;gap:12px;align-items:center}
+.ader-n{min-width:0;overflow-wrap:anywhere;font-size:.92rem}
+ul.ader .mono{text-align:right;font-size:.85rem;white-space:nowrap}
+.pill.fraco{background:var(--warn);color:var(--bg);margin:0 0 0 4px}
+.prog{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:grid;gap:10px}
+.prog-cab{display:grid;gap:4px}
+.spark{width:100%;max-width:420px;height:auto;display:block;overflow:visible}
+.prog-vals{display:flex;flex-wrap:wrap;gap:4px 14px;font:500 .8rem/1.4 var(--f-mono);color:var(--muted)}
+.prog-vals b{color:var(--ink);font-weight:500}
+ul.lista-res{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+p.licoes{white-space:pre-wrap}
 
 /* Guia */
 ol.passos{list-style:none;margin:0;padding:0;display:grid}
@@ -250,15 +281,16 @@ function exemplo(){
     base:{dormir:'22:30',acordar:'06:00',habilidade:'Inglês (conversação)',estudoHora:'07:40',estudoDur:30,movAtiv:'Corrida ou musculação',movHora:'18:30',movDur:45},
     blocos:{reservaManha:'11:30',reservaTarde:'17:30',reservaDur:30,fugaDia:0,fugaHora:'09:00',fugaDur:180,fugaAtiv:'Trilha ou parque, sem telas'},
     compromissos:[{id:uid(),titulo:'Trabalho',hora:'09:00',dur:540,dias:[1,2,3,4,5]}],
-    log:{},revisoes:{}};
+    log:{},revisoes:{},excecoes:{},progresso:{},fechamento:{},ciclos:[]};
 }
-function vazio(){return{v:1,exemplo:false,inicio:hoje(),areas:[],areasExtra:[],visao:'',metas:[],acoes:[],recompensa:'',base:base0(),blocos:blocos0(),compromissos:[],log:{},revisoes:{},auditoria:null}}
+function vazio(){return{v:1,exemplo:false,inicio:hoje(),areas:[],areasExtra:[],visao:'',metas:[],acoes:[],recompensa:'',base:base0(),blocos:blocos0(),compromissos:[],log:{},revisoes:{},auditoria:null,excecoes:{},progresso:{},fechamento:{},ciclos:[]}}
 function normalizar(s){
   const d=vazio();if(!s||typeof s!=='object')return exemplo();
   const o=Object.assign(d,s);o.base=Object.assign(base0(),s.base||{});o.blocos=Object.assign(blocos0(),s.blocos||{});
   ['areas','areasExtra','metas','acoes','compromissos'].forEach(k=>{if(!Array.isArray(o[k]))o[k]=[]});
   o.compromissos=o.compromissos.filter(c=>c&&typeof c==='object').map(c=>({id:c.id||uid(),titulo:String(c.titulo||''),hora:c.hora||'09:00',dur:+c.dur||60,dias:Array.isArray(c.dias)?c.dias.map(Number).filter(d=>d>=0&&d<=6):[]}));
-  if(!o.log||typeof o.log!=='object')o.log={};if(!o.revisoes||typeof o.revisoes!=='object')o.revisoes={};
+  ['log','revisoes','excecoes','progresso','fechamento'].forEach(k=>{if(!o[k]||typeof o[k]!=='object'||Array.isArray(o[k]))o[k]={}});
+  if(!Array.isArray(o.ciclos))o.ciclos=[];o.ciclos=o.ciclos.filter(c=>c&&typeof c==='object'&&typeof c.inicio==='string');
   const au=o.auditoria;if(!au||typeof au!=='object'||!Array.isArray(au.problemas)||!Array.isArray(au.perguntas))o.auditoria=null;
   return o;
 }
@@ -299,10 +331,17 @@ function itensDo(d){
   const acordar=mins(b.acordar),rel=x=>(x.ord-acordar+1440)%1440;
   return{base:it,acoes:ac.sort((x,y)=>rel(x)-rel(y))};
 }
-function scoreDia(d){const{base,acoes}=itensDo(d),all=base.concat(acoes),l=state.log[d]||{};const f=all.filter(i=>l[i.k]).length;return{f,t:all.length,p:all.length?f/all.length:0}}
+const exc=d=>!!state.excecoes[d];
+function scoreDia(d){const{base,acoes}=itensDo(d),all=base.concat(acoes),l=state.log[d]||{};const f=all.filter(i=>l[i.k]).length;return{f,t:all.length,p:all.length?f/all.length:0,exc:exc(d)}}
 function scoreSemana(w){
   const h=hoje();let soma=0,n=0;
-  for(let i=0;i<7;i++){const d=addDias(state.inicio,(w-1)*7+i);if(d>h)break;soma+=scoreDia(d).p;n++}
+  for(let i=0;i<7;i++){const d=addDias(state.inicio,(w-1)*7+i);if(d>h)break;if(exc(d))continue;soma+=scoreDia(d).p;n++}
+  return n?soma/n:null;
+}
+/* Média do ciclo até hoje (ou até o fim), sem os dias de exceção */
+function scoreCiclo(){
+  const h=hoje(),fim=fimCiclo(),ult=h<fim?h:fim;let soma=0,n=0;
+  for(let d=state.inicio;d<=ult;d=addDias(d,1)){if(exc(d))continue;soma+=scoreDia(d).p;n++}
   return n?soma/n:null;
 }
 const pct=p=>p==null?'—':Math.round(p*100)+'%';
@@ -336,6 +375,7 @@ function renderTopo(){
     for(let i=0;i<7;i++){
       const d=addDias(state.inicio,s*7+i);
       if(d>h)tally+=`<span class="risco fut${d===h?' hoje':''}"></span>`;
+      else if(exc(d))tally+=`<span class="risco exc${d===h?' hoje':''}"></span>`;
       else{const p=scoreDia(d).p;tally+=`<span class="risco${d===h?' hoje':''}" style="${p>0?'background:'+corScore(p):''}"></span>`}
     }
     tally+='</div>';
@@ -365,17 +405,25 @@ function abaHoje(){
   if(!ui.dia)ui.dia=h<ini?ini:(h>fim?fim:h);
   const d=ui.dia,{base,acoes}=itensDo(d),l=state.log[d]||{},sc=scoreDia(d),w=semanaDe(d);
   const rot=d===h?'Hoje':(diff(d,h)===1?'Ontem':(d>h?'Ainda não chegou':fmt(d,{day:'numeric',month:'long'})));
-  const li=i=>`<li><label class="item${l[i.k]?' feito':''}"><input type="checkbox" data-chk="${esc(i.k)}" ${l[i.k]?'checked':''}><span class="box"></span><span class="txt"><b>${esc(i.t)}</b><small>${esc(i.s)}</small></span><span class="hora">${esc(i.h||'')}</span></label></li>`;
+  /* Não falhe duas vezes: o que ficou sem marcar no dia anterior e ainda está aberto neste dia */
+  const ant=addDias(d,-1),lAnt=state.log[ant]||{};
+  const chaveAnt=ant>=ini&&d<=h&&!sc.exc&&!exc(ant)?new Set(itensDo(ant).base.concat(itensDo(ant).acoes).filter(i=>!lAnt[i.k]).map(i=>i.k)):new Set();
+  const dois=base.concat(acoes).filter(i=>chaveAnt.has(i.k)&&!l[i.k]);
+  const li=i=>`<li><label class="item${l[i.k]?' feito':''}"><input type="checkbox" data-chk="${esc(i.k)}" ${l[i.k]?'checked':''}><span class="box"></span><span class="txt"><b>${esc(i.t)}</b><small>${chaveAnt.has(i.k)&&!l[i.k]?'<em class="dois">Falhou ontem</em> · ':''}${esc(i.s)}</small></span><span class="hora">${esc(i.h||'')}</span></label></li>`;
+  const encerrado=h>fim&&!state.exemplo;
   return`
+  ${encerrado?`<div class="exemplo" style="margin-top:0"><p><b>Ciclo encerrado.</b> Registre o resultado das metas, pegue a recompensa e comece o próximo ciclo.</p><div class="row"><button class="btn pri" data-tab="revisao" data-goto="fechar">Fechar o ciclo →</button></div></div>`:''}
   <section>
     <div class="dianav">
       <button class="btn ghost" data-act="dia" data-n="-1" ${d<=ini?'disabled':''} aria-label="Dia anterior">‹</button>
       <div class="meio"><strong>${DIAS_LONGO[parse(d).getDay()]}, ${fmt(d)}</strong><span class="eyebrow">${esc(rot)}${w?' · semana '+w:''}</span></div>
       <button class="btn ghost" data-act="dia" data-n="1" ${d>=fim?'disabled':''} aria-label="Próximo dia">›</button>
     </div>
-    <div class="placar"><span class="big">${pct(sc.p)}</span><span class="muted">cumprido · ${sc.f} de ${sc.t} itens</span></div>
-    <div class="barra"><i style="width:${Math.round(sc.p*100)}%"></i></div>
+    ${sc.exc?`<div class="placar"><span class="big exc-big">Exceção</span><span class="muted">fora do placar · ${sc.f} de ${sc.t} itens marcados</span></div>`:`<div class="placar"><span class="big">${pct(sc.p)}</span><span class="muted">cumprido · ${sc.f} de ${sc.t} itens</span></div>
+    <div class="barra"><i style="width:${Math.round(sc.p*100)}%"></i></div>`}
+    ${d>h?'':`<p class="muted exc-ctl">${sc.exc?`Este dia não conta no placar nem na aderência. <button class="lnk" data-act="exc">Voltar a contar</button>`:`Doente ou viajando? <button class="lnk" data-act="exc">Marcar como dia de exceção</button>`}</p>`}
   </section>
+  ${dois.length?`<div class="dois-aviso" role="note"><b>Não falhe duas vezes.</b> Ontem ficou sem: ${dois.map(i=>esc(i.acao?i.t:i.t.split(':')[0])).join(', ')}. Um dia perdido é acidente; dois seguidos começam um hábito.</div>`:''}
   <section>
     <h2>Base inegociável</h2>
     <ul class="lista">${base.map(li).join('')}</ul>
@@ -719,7 +767,8 @@ function desfazerBackup(){
 function irPara(id){const el=document.getElementById(id);if(el)el.scrollIntoView({block:'start',behavior:'smooth'})}
 function resumoBackup(s){
   const n=s.metas.filter(m=>m.texto).length,d=Object.keys(s.log).length;
-  return`ciclo a partir de ${fmt(s.inicio,{day:'numeric',month:'short',year:'numeric'})} · ${n} meta${n===1?'':'s'} · ${d} dia${d===1?'':'s'} registrado${d===1?'':'s'}`+(s.exemplo?' · plano de exemplo':'');
+  const c=(s.ciclos||[]).length;
+  return`ciclo a partir de ${fmt(s.inicio,{day:'numeric',month:'short',year:'numeric'})} · ${n} meta${n===1?'':'s'} · ${d} dia${d===1?'':'s'} registrado${d===1?'':'s'}`+(c?` · ${c} ciclo${c>1?'s':''} anterior${c>1?'es':''}`:'')+(s.exemplo?' · plano de exemplo':'');
 }
 function blocoBackup(){
   let imp;
@@ -744,7 +793,7 @@ function blocoBackup(){
     <p class="intro">Para continuar no celular ou em outro computador, exporte aqui e importe lá. Faça o mesmo sempre que trocar de aparelho, para levar o progresso mais recente.</p>
     <div class="exportar">
       <h3>1. Exportar deste aparelho</h3>
-      <p>O backup leva o plano inteiro: metas, rotina, checklists marcados e revisões.</p>
+      <p>O backup leva o plano inteiro: metas, rotina, checklists marcados, revisões, medições e ciclos anteriores.</p>
       <div class="row"><button class="btn pri" data-act="bk-baixar">Baixar backup (.json)</button><button class="btn" data-act="bk-copiar">Copiar como texto</button></div>
       <p id="bk-msg" class="muted" style="font-size:.88rem" role="status"></p>
       <textarea id="bk-txt" readonly hidden aria-label="Backup para copiar" style="font-family:var(--f-mono);font-size:.75rem;min-height:140px"></textarea>
@@ -797,13 +846,13 @@ function alertas(){
   return A;
 }
 function aderencia(){
-  const h=hoje(),fim=fimCiclo(),ult=h<fim?h:fim,r={};let dias=0;
-  if(ult<state.inicio)return{dias,r};
+  const h=hoje(),fim=fimCiclo(),ult=h<fim?h:fim,r={};let dias=0,nexc=0;
+  if(ult<state.inicio)return{dias,r,nexc};
   for(let d=state.inicio;d<=ult;d=addDias(d,1)){
-    dias++;const{base,acoes}=itensDo(d),l=state.log[d]||{};
+    dias++;if(exc(d)){nexc++;continue}const{base,acoes}=itensDo(d),l=state.log[d]||{};
     base.concat(acoes).forEach(i=>{const o=r[i.k]||(r[i.k]={t:0,f:0});o.t++;if(l[i.k])o.f++});
   }
-  return{dias,r};
+  return{dias,r,nexc};
 }
 function planoJSON(){
   return{
@@ -864,22 +913,33 @@ function textoIA(){
 
   if(ui.ia.hist){
     p('\n## Execução até agora');
-    const{dias,r}=aderencia();
+    const{dias,r,nexc}=aderencia();
     if(!dias)p('O ciclo ainda não começou.');
     else{
       p(`${dias} dia(s) decorridos (o dia de hoje está incluído e pode estar em andamento).`);
+      if(nexc)p(`${nexc} desses dias foram marcados como exceção (doença, viagem) e ficam fora do placar e da aderência.`);
       p('Placar médio por semana (itens cumpridos / itens previstos):');
       for(let w=1;w<=12;w++){const sc=scoreSemana(w);if(sc==null)break;p(`- Semana ${w}: ${pct(sc)}`)}
       p('Aderência por item:');
       Object.keys(ROTULO_BASE).forEach(key=>{const o=r[key];if(o)p(`- ${ROTULO_BASE[key]}: ${o.f}/${o.t} dias (${pct(o.f/o.t)})`)});
       state.acoes.filter(a=>tx(a.texto)).forEach(a=>{const o=r['a:'+a.id];if(o)p(`- Ação "${tx(a.texto)}" (id ${a.id}): ${o.f}/${o.t} vezes (${pct(o.f/o.t)})`)});
-      const pd=[];for(let i=0;i<dias;i++){const d=addDias(state.inicio,i);pd.push(`${DIAS[parse(d).getDay()]} ${fmt(d)}: ${pct(scoreDia(d).p)}`)}
+      const pd=[];for(let i=0;i<dias;i++){const d=addDias(state.inicio,i);pd.push(`${DIAS[parse(d).getDay()]} ${fmt(d)}: ${exc(d)?'exceção':pct(scoreDia(d).p)}`)}
       p('Placar por dia: '+pd.join(' · '));
     }
     const rv=Object.keys(state.revisoes).map(Number).sort((a,b)=>a-b).filter(w=>tx(state.revisoes[w].ok)||tx(state.revisoes[w].ajuste));
     p('\n## Minhas revisões semanais');
     if(!rv.length)p('(nenhuma registrada)');
     rv.forEach(w=>{const o=state.revisoes[w];p(`Semana ${w}: funcionou: ${tx(o.ok)||'—'} | ajustar: ${tx(o.ajuste)||'—'}`)});
+    const mds=state.metas.filter(m=>tx(m.texto)).map(m=>[m,medicoes(m.id)]).filter(x=>x[1].length);
+    if(mds.length){
+      p('\n## Medições semanais das metas');
+      mds.forEach(([m,v])=>p(`- Meta ${state.metas.indexOf(m)+1} (${tx(m.medida)||'sem medida definida'}; alvo: ${tx(m.alvo)||'—'}): `+v.map(x=>`S${x.w} ${x.t}`).join(' · ')));
+    }
+    if(state.ciclos.length){
+      p('\n## Ciclos anteriores');
+      state.ciclos.forEach((c,i)=>{const fc=c.fechamento||{},res=fc.resultados||{};
+        p(`- Ciclo ${c.numero||i+1} (${dl(c.inicio)} a ${dl(c.fim||addDias(c.inicio,CICLO-1))}), execução ${pct(c.placar)}: `+((c.metas||[]).filter(m=>m&&tx(m.texto)).map(m=>`"${tx(m.texto)}" → ${RES[res[m.id]]||'sem registro'}`).join('; ')||'sem metas')+(tx(fc.licoes)?` | lições: ${tx(fc.licoes)}`:''))});
+    }
   }
 
   p('\n## Formato da resposta (obrigatório)');
@@ -1117,6 +1177,35 @@ function copiarIA(){
   try{navigator.clipboard.writeText(t).then(()=>{msg.textContent='Prompt copiado. Cole numa conversa nova com a IA e traga a resposta para o passo 2.'},falha)}catch(_){falha()}
 }
 
+/* ---------- Instalar como app ---------- */
+const instalado=()=>{try{return matchMedia('(display-mode: standalone)').matches||navigator.standalone===true}catch(_){return false}};
+const ios=()=>/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+function blocoInstalar(){
+  if(window.claude)return'';
+  let corpo;
+  if(instalado())corpo='<p class="ok">Você está usando o app instalado. Ele abre direto da tela inicial e funciona sem internet.</p>';
+  else if(ui.instalar)corpo=`<p>Instale a página como app: ela abre direto da tela inicial, em tela cheia, e funciona sem internet.</p><div class="row"><button class="btn pri" data-act="instalar">Instalar app</button></div>`;
+  else corpo=`<p>Instale a página como app: ela abre direto da tela inicial, em tela cheia, e funciona sem internet.</p>
+    <ul class="guia-lista">
+      <li><span class="ui-txt">iPhone e iPad:</span> abra no Safari, toque em <span class="ui-txt">Compartilhar</span> › <span class="ui-txt">Adicionar à Tela de Início</span>.</li>
+      <li><span class="ui-txt">Android:</span> no Chrome, toque no menu <span class="ui-txt">⋮</span> › <span class="ui-txt">Instalar app</span> (ou <span class="ui-txt">Adicionar à tela inicial</span>).</li>
+      <li><span class="ui-txt">Computador:</span> no Chrome ou Edge, clique no ícone de instalar na barra de endereço.</li>
+    </ul>`;
+  return`
+  <section id="instalar">
+    <h2>Instalar como app</h2>
+    ${corpo}
+    ${!instalado()&&ios()?'<p class="nota">No iPhone, o app instalado guarda os dados separado do Safari. Antes de instalar, exporte um backup aqui (abaixo) e importe no app depois de abri-lo.</p>':''}
+  </section>`;
+}
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();ui.instalar=e;if(ui.aba==='guia')renderAba()});
+addEventListener('appinstalled',()=>{ui.instalar=null;if(ui.aba==='guia')renderAba()});
+async function instalarApp(){
+  const ev=ui.instalar;if(!ev)return;ui.instalar=null;
+  try{await ev.prompt();await ev.userChoice}catch(_){}
+  renderAba();
+}
+
 /* ---------- Guia ---------- */
 function abaGuia(){
   const ir=(t,l)=>`<div class="row"><button class="btn" data-tab="${t}">${l} →</button></div>`;
@@ -1135,11 +1224,11 @@ function abaGuia(){
       <li class="passo"><span class="n">3</span><div class="c"><h3>Monte a rotina e leve para a agenda</h3>
         <p class="muted">Na aba Rotina, toque em qualquer horário, duração, nome ou dia para ajustar ao seu dia real. Adicione seus compromissos fixos (trabalho, aulas) para ver como o plano se encaixa; a página avisa quando dois blocos se sobrepõem. Depois exporte tudo para o Google Agenda (veja abaixo).</p>${ir('rotina','Abrir Rotina')}</div></li>
       <li class="passo"><span class="n">4</span><div class="c"><h3>Execute todo dia</h3>
-        <p class="muted">Na aba Hoje, marque cada item cumprido. As ações assimétricas ficam na manhã, quando a energia está mais alta. O placar do dia vira um risco no topo da página: <span class="mini-tally" aria-hidden="true"><i></i><i style="background:${corScore(.4)}"></i><i style="background:${corScore(1)}"></i></span>cor mais forte significa mais itens cumpridos. Cada grupo de 7 riscos é uma semana, e o risco com contorno é hoje. As setas ‹ › deixam marcar dias anteriores.</p>${ir('hoje','Abrir Hoje')}</div></li>
+        <p class="muted">Na aba Hoje, marque cada item cumprido. As ações assimétricas ficam na manhã, quando a energia está mais alta. O placar do dia vira um risco no topo da página: <span class="mini-tally" aria-hidden="true"><i></i><i style="background:${corScore(.4)}"></i><i style="background:${corScore(1)}"></i></span>cor mais forte significa mais itens cumpridos. Cada grupo de 7 riscos é uma semana, e o risco com contorno é hoje. As setas ‹ › deixam marcar dias anteriores. Se ontem ficou algo sem marcar, a página avisa: não falhe duas vezes seguidas. Doente ou viajando? Marque o dia como exceção e ele sai do placar.</p>${ir('hoje','Abrir Hoje')}</div></li>
       <li class="passo"><span class="n">5</span><div class="c"><h3>Revise toda semana</h3>
-        <p class="muted">Reserve 15 minutos no fim da semana. Veja a porcentagem da semana na aba Revisão, anote o que funcionou e o que vai ajustar. Mexa nas ações do Plano se alguma não estiver gerando resultado. Se quiser uma segunda opinião, peça uma auditoria a uma IA (veja abaixo).</p>${ir('revisao','Abrir Revisão')}</div></li>
+        <p class="muted">Reserve 15 minutos no fim da semana. Veja a porcentagem da semana na aba Revisão, os itens que você mais perdeu e o seu ponto fraco. Anote o que funcionou, o que vai ajustar e a medição de cada meta, para ver se as ações estão movendo o resultado. Mexa nas ações do Plano se alguma não estiver gerando resultado. Se quiser uma segunda opinião, peça uma auditoria a uma IA (veja abaixo).</p>${ir('revisao','Abrir Revisão')}</div></li>
       <li class="passo"><span class="n">6</span><div class="c"><h3>Feche o ciclo</h3>
-        <p class="muted">Na semana 12, compare as metas com o resultado e pegue a recompensa se cumpriu. Para um novo ciclo, troque a data de início no Plano e reescreva metas e ações.</p></div></li>
+        <p class="muted">Na semana 12, a aba Revisão abre o fechamento: marque o resultado de cada meta, pegue a recompensa se cumpriu e anote as lições. Depois arquive o ciclo e comece o próximo. Base e rotina continuam, e o ciclo antigo fica no histórico.</p>${ir('revisao','Abrir Revisão')}</div></li>
     </ol>
   </section>
   <section>
@@ -1165,6 +1254,7 @@ function abaGuia(){
     <p class="nota">Se a IA responder com texto em vez de JSON, peça: “responda só com o JSON no formato pedido”. A última auditoria fica salva na aba Revisão.</p>
     <div class="row"><button class="btn" data-tab="revisao" data-goto="ia">Ir para a auditoria →</button></div>
   </section>
+  ${blocoInstalar()}
   <section>
     <h2>Onde ficam seus dados</h2>
     <p class="intro">${ref?'Tudo é salvo de forma privada na sua conta, e também neste aparelho como reserva.':'Tudo é salvo só neste navegador, sem conta e sem servidor. Outro aparelho ou outro navegador começa vazio: use o backup abaixo para levar seus dados.'} O indicador ao lado das datas, no topo, mostra onde foi salvo por último.</p>
@@ -1196,6 +1286,119 @@ function abaRotina(){
   </section>
   ${blocoExportar()}`;
 }
+/* ---------- Revisão: resumo da semana, aderência, progresso das metas e fechamento ---------- */
+const nomeItem=k=>ROTULO_BASE[k]||tx((state.acoes.find(a=>'a:'+a.id===k)||{}).texto);
+function resumoSemana(w){
+  const h=hoje(),d0=addDias(state.inicio,(w-1)*7),r={},dias=[];let nexc=0;
+  for(let i=0;i<7;i++){
+    const d=addDias(d0,i);if(d>h)break;if(exc(d)){nexc++;continue}
+    const{base,acoes}=itensDo(d),l=state.log[d]||{};
+    base.concat(acoes).forEach(it=>{const o=r[it.k]||(r[it.k]={t:0,f:0});o.t++;if(l[it.k])o.f++});
+    dias.push({d,p:scoreDia(d).p});
+  }
+  const pl=n=>n+' dia'+(n>1?'s':'')+' de exceção';
+  if(!dias.length)return nexc?`<ul class="resumo"><li>${pl(nexc)}, nada para pontuar.</li></ul>`:'';
+  const falhas=Object.keys(r).filter(k=>r[k].f<r[k].t&&nomeItem(k)).sort((a,b)=>(r[b].t-r[b].f)-(r[a].t-r[a].f)||r[a].f/r[a].t-r[b].f/r[b].t).slice(0,3);
+  const ord=[...dias].sort((a,b)=>b.p-a.p),dl=x=>`${DIAS[parse(x.d).getDay()].toLowerCase()} ${fmt(x.d)} (${pct(x.p)})`,L=[];
+  L.push(falhas.length?'Mais perdidos: '+falhas.map(k=>`${esc(nomeItem(k))} <span class="mono">${r[k].f}/${r[k].t}</span>`).join(' · '):'Nenhum item perdido nos dias registrados.');
+  if(dias.length>1&&ord[0].p!==ord[ord.length-1].p)L.push(`Melhor dia: ${dl(ord[0])} · pior: ${dl(ord[ord.length-1])}`);
+  if(nexc)L.push(pl(nexc)+' fora do placar');
+  return`<ul class="resumo">${L.map(x=>`<li>${x}</li>`).join('')}</ul>`;
+}
+function htmlAderencia(){
+  const{dias,r}=aderencia(),ks=Object.keys(r).filter(k=>r[k].t&&nomeItem(k)).sort((a,b)=>r[a].f/r[a].t-r[b].f/r[b].t);
+  if(!dias||!ks.length)return'<p class="vazio">Marque os itens na aba Hoje e a aderência de cada um aparece aqui.</p>';
+  return`<ul class="ader">${ks.map((k,i)=>{const p=r[k].f/r[k].t;return`<li><span class="ader-n">${esc(nomeItem(k))}${i===0&&p<1?' <span class="pill fraco">ponto fraco</span>':''}</span><span class="barra"><i style="width:${Math.round(p*100)}%"></i></span><span class="mono">${pct(p)} <small class="muted">${r[k].f}/${r[k].t}</small></span></li>`}).join('')}</ul>`;
+}
+/* Lê o número de uma medição livre: "29:40" (min:seg ou h:min), "1:02:30", "72,5 kg", "3 clientes" */
+function numMedida(v){
+  v=tx(v);if(!v)return null;
+  let m=v.match(/^(\d+):(\d{1,2})(?::(\d{1,2}))?/);
+  if(m)return m[3]!=null?(+m[1])*3600+(+m[2])*60+(+m[3]):(+m[1])*60+(+m[2]);
+  const s=v.includes(',')?v.replace(/\./g,'').replace(',','.'):v;m=s.match(/-?\d+(?:\.\d+)?/);
+  return m?+m[0]:null;
+}
+function sparkline(vals){
+  const W=320,H=64,px=10,py=10,xs=w=>px+(w-1)*(W-2*px)/11,f=v=>v.toFixed(1);
+  const ns=vals.map(x=>x.n),lo=Math.min(...ns),hi=Math.max(...ns),ys=n=>hi===lo?H/2:py+(hi-n)*(H-2*py)/(hi-lo);
+  const pts=vals.map(x=>[xs(x.w),ys(x.n)]);
+  let ticks='';for(let w=1;w<=12;w++)ticks+=`<circle cx="${f(xs(w))}" cy="${H-1}" r="1.5" style="fill:var(--line)"/>`;
+  return`<svg class="spark" viewBox="0 0 ${W} ${H}" role="img" aria-label="Medições por semana: ${esc(vals.map(x=>'S'+pad(x.w)+' '+x.t).join(', '))}">${ticks}
+    <polyline points="${pts.map(p=>f(p[0])+','+f(p[1])).join(' ')}" style="fill:none;stroke:var(--accent);stroke-width:2;stroke-linejoin:round;stroke-linecap:round"/>
+    ${vals.map((x,i)=>`<g><title>S${pad(x.w)}: ${esc(x.t)}</title><circle cx="${f(pts[i][0])}" cy="${f(pts[i][1])}" r="12" style="fill:transparent"/><circle cx="${f(pts[i][0])}" cy="${f(pts[i][1])}" r="4" style="fill:var(--accent);stroke:var(--surface);stroke-width:2"/></g>`).join('')}</svg>`;
+}
+function medicoes(id){const pr=state.progresso[id]||{},out=[];for(let w=1;w<=12;w++){const t=tx(pr[w]);if(t)out.push({w,t,n:numMedida(t)})}return out}
+function htmlProgresso(){
+  const ms=state.metas.filter(m=>tx(m.texto));
+  if(!ms.length)return'<p class="vazio">Defina metas na aba Plano para acompanhar o progresso.</p>';
+  return ms.map(m=>{
+    const vals=medicoes(m.id),num=vals.filter(x=>x.n!=null),info=[tx(m.medida),tx(m.alvo)&&'alvo: '+tx(m.alvo)].filter(Boolean).join(' · ');
+    return`<div class="prog"><div class="prog-cab"><span class="tag">Meta ${state.metas.indexOf(m)+1}</span><b>${esc(m.texto)}</b>${info?`<small class="muted">${esc(info)}</small>`:''}</div>
+      ${num.length>=2?sparkline(num):''}
+      ${vals.length?`<p class="prog-vals">${vals.map(x=>`<span>S${pad(x.w)} <b>${esc(x.t)}</b></span>`).join('')}</p>`:'<p class="muted" style="font-size:.88rem">Nenhuma medição ainda. Anote o valor de cada semana na revisão semanal, logo abaixo.</p>'}
+    </div>`}).join('');
+}
+function camposMedicao(w){
+  const ms=state.metas.filter(m=>tx(m.texto));if(!ms.length)return'';
+  return`<div class="campos">${ms.map(m=>`<label class="campo"><span>Meta ${state.metas.indexOf(m)+1}${tx(m.medida)?' · '+esc(m.medida):''}</span><input type="text" id="f-pr-${m.id}-${w}" data-bind="progresso.${m.id}.${w}" value="${esc((state.progresso[m.id]||{})[w])}" placeholder="${esc(tx(m.alvo)?'Alvo: '+tx(m.alvo):'Medição da semana')}"></label>`).join('')}</div>`;
+}
+const RES={sim:'Cumprida',parcial:'Em parte',nao:'Não cumprida'};
+const RES_PILL={sim:'acao',parcial:'base',nao:'apoio'};
+const proxInicio=()=>{const f=addDias(fimCiclo(),1),h=hoje();return f>h?f:h};
+const dataLonga=s=>fmt(s,{day:'numeric',month:'short',year:'numeric'});
+function blocoFechar(){
+  const n=diff(state.inicio,hoje()),fc=state.fechamento,res=fc.resultados||{},prox=state.ciclos.length+2;
+  if(state.exemplo||n<CICLO-7)return'';
+  const ms=state.metas.filter(m=>tx(m.texto));
+  const ultima=m=>{const v=medicoes(m.id).pop();return v?`última medição S${pad(v.w)}: ${v.t}`:''};
+  return`
+  <section id="fechar">
+    <h2>Fechar o ciclo</h2>
+    <p class="intro">${n>=CICLO?'O ciclo terminou.':'Última semana do ciclo.'} Compare cada meta com o alvo, decida sobre a recompensa e anote o que levar para o próximo.</p>
+    <div class="exportar">
+      <div class="placar"><span class="big">${pct(scoreCiclo())}</span><span class="muted">de execução no ciclo</span></div>
+      ${ms.map(m=>`<div class="campo"><span>Meta ${state.metas.indexOf(m)+1}</span><b>${esc(m.texto)}</b>${tx(m.alvo)||ultima(m)?`<small class="muted">${esc([tx(m.alvo)&&'Alvo: '+tx(m.alvo),ultima(m)].filter(Boolean).join(' · '))}</small>`:''}
+        <div class="chips" role="group" aria-label="Resultado da meta ${state.metas.indexOf(m)+1}">${Object.keys(RES).map(v=>`<button class="chip" data-act="res" data-id="${esc(m.id)}" data-v="${v}" aria-pressed="${res[m.id]===v}">${RES[v]}</button>`).join('')}</div></div>`).join('')||'<p class="muted">Nenhuma meta definida neste ciclo.</p>'}
+      ${tx(state.recompensa)?`<label class="check-inline"><input type="checkbox" id="f-fc-rec" data-bind="fechamento.recompensa" ${fc.recompensa?'checked':''}> Recompensa resgatada: ${esc(state.recompensa)}</label>`:''}
+      <label class="campo"><span>Lições do ciclo</span><textarea id="f-fc-lic" data-bind="fechamento.licoes" placeholder="O que funcionou, o que não repetir, o que levar para o próximo ciclo">${esc(fc.licoes)}</textarea></label>
+    </div>
+    <div class="exportar">
+      <h3>Começar o ciclo ${prox}</h3>
+      <p>Este ciclo vai para o histórico com placar, metas, medições, revisões e lições. Base, rotina, compromissos, áreas e visão continuam. Checklist, revisões e medições recomeçam do zero.</p>
+      <div class="campos"><label class="campo"><span>Início do ciclo ${prox}</span><input type="date" id="f-novo-ini" value="${esc(ui.novoInicio||proxInicio())}"></label></div>
+      <label class="check-inline"><input type="checkbox" id="f-levar" ${ui.levarMetas?'checked':''}> Levar as metas e ações atuais para reescrever</label>
+      <div class="row"><button class="btn pri" data-act="novo-ciclo">Arquivar e começar o ciclo ${prox}</button></div>
+    </div>
+  </section>`;
+}
+function novoCiclo(){
+  const ini=ui.novoInicio||proxInicio();if(!/^\d{4}-\d{2}-\d{2}$/.test(ini))return;
+  const clone=o=>JSON.parse(JSON.stringify(o)),antes=clone(state),c=clone(state);
+  ['ciclos','auditoria','exemplo','v'].forEach(k=>delete c[k]);
+  c.numero=state.ciclos.length+1;c.fim=fimCiclo();c.placar=scoreCiclo();
+  const n=vazio();n.inicio=ini;n.ciclos=state.ciclos.concat([c]);n.visao=state.visao;
+  ['base','blocos','compromissos','areas','areasExtra'].concat(ui.levarMetas?['metas','acoes']:[]).forEach(k=>n[k]=clone(state[k]));
+  state=n;Object.assign(ui,{cicloDesfazer:antes,cicloFeito:c.numero,novoInicio:null,levarMetas:false,dia:null,imp:null,aplicado:null,desfazer:null});
+  agendar();render();window.scrollTo(0,0);
+}
+function desfazerCiclo(){
+  if(!ui.cicloDesfazer)return;
+  state=normalizar(ui.cicloDesfazer);ui.cicloDesfazer=null;ui.cicloFeito=null;ui.dia=null;
+  agendar();render();irPara('fechar');
+}
+function htmlCiclos(){
+  if(!state.ciclos.length)return'';
+  return`
+  <section>
+    <h2>Ciclos anteriores</h2>
+    ${state.ciclos.map((c,i)=>{const fc=c.fechamento||{},res=fc.resultados||{},ms=(c.metas||[]).filter(m=>m&&tx(m.texto));
+    return`<details class="sem"><summary><b>Ciclo ${c.numero||i+1} · ${dataLonga(c.inicio)} a ${dataLonga(c.fim||addDias(c.inicio,CICLO-1))}</b><span class="mono">${pct(c.placar)}</span></summary><div class="corpo">
+      ${ms.length?`<ul class="lista-res">${ms.map(m=>`<li><span class="pill ${RES_PILL[res[m.id]]||'apoio'}">${RES[res[m.id]]||'Sem registro'}</span>${esc(m.texto)}</li>`).join('')}</ul>`:''}
+      ${tx(c.recompensa)?`<p class="muted">Recompensa: ${esc(c.recompensa)}${fc.recompensa?' · resgatada':''}</p>`:''}
+      ${tx(fc.licoes)?`<div class="campo"><span>Lições</span><p class="licoes">${esc(fc.licoes)}</p></div>`:''}
+    </div></details>`}).reverse().join('')}
+  </section>`;
+}
 function abaRevisao(){
   const h=hoje(),wAtual=semanaDe(h);
   let grade='<span></span>'+['S','T','Q','Q','S','S','D'].map((_,i)=>`<span class="cab">${DIAS[parse(addDias(state.inicio,i)).getDay()]}</span>`).join('')+'<span></span>';
@@ -1204,6 +1407,7 @@ function abaRevisao(){
     grade+=`<span class="lbl${w===wAtual?' atual':''}">S${pad(w)} · ${fmt(d0)}</span>`;
     for(let i=0;i<7;i++){const d=addDias(d0,i);
       if(d>h)grade+=`<span class="cel fut" title="${fmt(d)}"></span>`;
+      else if(exc(d))grade+=`<span class="cel exc${d===h?' hoje':''}" title="${fmt(d)}: exceção"></span>`;
       else{const p=scoreDia(d).p;grade+=`<span class="cel${d===h?' hoje':''}" title="${fmt(d)}: ${pct(p)}" style="${p>0?'background:'+corScore(p):''}"></span>`}}
     grade+=`<span class="pct${w===wAtual?' atual':''}">${pct(sc)}</span>`;
   }
@@ -1213,22 +1417,37 @@ function abaRevisao(){
     if(d0>h&&w!==1)continue;
     const r=state.revisoes[w]||{},sc=scoreSemana(w);
     semanas.push(`<details class="sem" ${w===(wAtual||1)?'open':''}><summary><b>Semana ${w} · ${fmt(d0)} a ${fmt(d6)}</b><span class="mono">${pct(sc)}</span></summary><div class="corpo">
+      ${resumoSemana(w)}
       <label class="campo"><span>O que funcionou</span><textarea id="f-rok-${w}" data-bind="revisoes.${w}.ok">${esc(r.ok)}</textarea></label>
       <label class="campo"><span>O que ajustar na próxima semana</span><textarea id="f-raj-${w}" data-bind="revisoes.${w}.ajuste">${esc(r.ajuste)}</textarea></label>
+      ${camposMedicao(w)}
     </div></details>`);
   }
   return`
+  ${ui.cicloFeito?`<div class="exemplo" style="margin-top:0" role="status"><p><b>Ciclo ${ui.cicloFeito} arquivado.</b> O ciclo ${ui.cicloFeito+1} começa em ${fmt(state.inicio,{day:'numeric',month:'long'})}. Agora defina as metas e ações no Plano.</p><div class="row">${ui.cicloDesfazer?'<button class="btn" data-act="ciclo-desfazer">Desfazer</button>':''}<button class="btn pri" data-tab="plano">Abrir Plano →</button></div></div>`:''}
+  ${blocoFechar()}
   <section>
     <h2>Placar do ciclo</h2>
     <p class="intro">Cada quadrado é um dia: a cor mostra quanto do checklist foi cumprido. A porcentagem à direita é a média da semana até hoje.</p>
     <div class="grade-wrap"><div class="grade">${grade}</div></div>
-    <div class="leg"><span><i style="background:var(--line)"></i>nada</span><span><i style="background:${corScore(.5)}"></i>metade</span><span><i style="background:${corScore(1)}"></i>tudo</span><span><i style="box-shadow:inset 0 0 0 1px var(--line)"></i>ainda não chegou</span></div>
+    <div class="leg"><span><i style="background:var(--line)"></i>nada</span><span><i style="background:${corScore(.5)}"></i>metade</span><span><i style="background:${corScore(1)}"></i>tudo</span><span><i style="box-shadow:inset 0 0 0 1px var(--line)"></i>ainda não chegou</span><span><i class="exc-i"></i>exceção</span></div>
+  </section>
+  <section>
+    <h2>Aderência por item</h2>
+    <p class="intro">Quanto de cada pilar e ação você cumpriu no ciclo até hoje, do mais fraco ao mais forte. Dias de exceção ficam de fora.</p>
+    ${htmlAderencia()}
+  </section>
+  <section>
+    <h2>Progresso das metas</h2>
+    <p class="intro">O placar mede se você fez as ações; as medições mostram se as ações estão movendo as metas.</p>
+    <div id="d-prog" style="display:grid;gap:12px">${htmlProgresso()}</div>
   </section>
   <section>
     <h2>Revisão semanal</h2>
-    <p class="intro">Reserve 15 minutos no fim de cada semana: olhe o placar, anote o que funcionou e o que muda.</p>
+    <p class="intro">Reserve 15 minutos no fim de cada semana: olhe o placar, anote o que funcionou, o que muda e a medição de cada meta.</p>
     ${semanas.join('')}
   </section>
+  ${htmlCiclos()}
   ${blocoIA()}`;
 }
 
@@ -1239,6 +1458,7 @@ function atualizarDerivados(){
   set('d-sono',sonoInfo());set('d-cel',celInfo());set('d-mov',movInfo());set('d-est',estInfo());
   if(document.getElementById('d-fim'))set('d-fim',fmt(fimCiclo(),{day:'numeric',month:'short',year:'numeric'}));
   if(document.getElementById('d-dia')){set('d-dia',linhaDia());set('d-semana',linhaSemana())}
+  if(document.getElementById('d-prog'))set('d-prog',htmlProgresso());
   atualizarIA();
   if(document.getElementById('exp-n'))set('exp-n',contarExp()+' eventos · '+fmt(expInicio())+' a '+fmt(fimCiclo(),{day:'numeric',month:'short',year:'numeric'}));
 }
@@ -1265,6 +1485,8 @@ document.addEventListener('input',e=>{const el=e.target;if(el.id==='bk-cola'){ui
 document.addEventListener('change',e=>{
   const el=e.target;
   if(el.id==='bk-arq'){lerArquivoBackup(el);return}
+  if(el.id==='f-novo-ini'){ui.novoInicio=el.value;return}
+  if(el.id==='f-levar'){ui.levarMetas=el.checked;return}
   if(el.dataset.chk){
     const d=ui.dia;state.log[d]=state.log[d]||{};
     if(el.checked)state.log[d][el.dataset.chk]=true;else delete state.log[d][el.dataset.chk];
@@ -1279,9 +1501,10 @@ document.addEventListener('change',e=>{
 });
 document.addEventListener('click',e=>{
   const t=e.target.closest('[data-tab],[data-act]');if(!t)return;
-  if(t.dataset.tab){ui.aba=t.dataset.tab;if(t.dataset.tab==='hoje')ui.dia=null;renderAba();if(t.dataset.goto){const g=document.getElementById(t.dataset.goto);if(g)g.scrollIntoView({block:'start'})}else window.scrollTo(0,0);try{localStorage.setItem(LS+'-aba',ui.aba)}catch(_){}return}
+  if(t.dataset.tab){ui.aba=t.dataset.tab;ui.cicloFeito=null;ui.cicloDesfazer=null;if(t.dataset.tab==='hoje')ui.dia=null;renderAba();if(t.dataset.goto){const g=document.getElementById(t.dataset.goto);if(g)g.scrollIntoView({block:'start'})}else window.scrollTo(0,0);try{localStorage.setItem(LS+'-aba',ui.aba)}catch(_){}return}
   const a=t.dataset.act;
   if(a==='dia'){ui.dia=addDias(ui.dia,+t.dataset.n);renderAba();return}
+  if(a==='exc'){const d=ui.dia;if(state.excecoes[d])delete state.excecoes[d];else state.excecoes[d]=true;state.exemplo=false;agendar();render();return}
   if(a==='zerar'){const ini=state.inicio;state=vazio();state.inicio=ini;agendar();ui.aba='plano';render();return}
   if(a==='manter'){state.exemplo=false;agendar();render();return}
   if(a==='exp-csv'){exportarCsv();return}
@@ -1302,6 +1525,10 @@ document.addEventListener('click',e=>{
   if(a==='bk-aplicar'){aplicarBackup();return}
   if(a==='bk-cancelar'){ui.bk=null;renderAba();irPara('bk-imp');return}
   if(a==='bk-desfazer'){desfazerBackup();return}
+  if(a==='instalar'){instalarApp();return}
+  if(a==='novo-ciclo'){novoCiclo();return}
+  if(a==='ciclo-desfazer'){desfazerCiclo();return}
+  if(a==='res'){const r=state.fechamento.resultados||(state.fechamento.resultados={});r[t.dataset.id]===t.dataset.v?delete r[t.dataset.id]:r[t.dataset.id]=t.dataset.v;agendar();renderAba();return}
   if(a==='bk-fechar'){ui.bkFeito=false;ui.bkDesfazer=null;renderAba();return}
   state.exemplo=false;
   if(a==='area'){const v=t.dataset.v,i=state.areas.indexOf(v);i<0?state.areas.push(v):state.areas.splice(i,1)}
@@ -1334,6 +1561,12 @@ let abaSalva=null;try{abaSalva=localStorage.getItem(LS+'-aba')}catch(_){}
 if(abaSalva&&ABAS.includes(abaSalva))ui.aba=abaSalva;else if(state.exemplo)ui.aba='guia';
 const hash=(location.hash||'').slice(1);if(ABAS.includes(hash))ui.aba=hash;
 render();
+
+/* App instalável e offline (fora do Claude). Pede ao navegador para não apagar os dados por falta de uso. */
+if(!window.claude&&'serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost'||location.hostname==='127.0.0.1')){
+  addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{})});
+  try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist().catch(()=>{})}catch(_){}
+}
 
 (async()=>{
   try{

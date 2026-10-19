@@ -1,0 +1,16 @@
+{
+  "name": "Modo Caverna",
+  "short_name": "Caverna",
+  "description": "Ciclos de 12 semanas: plano, rotina, checklist diário e revisão semanal.",
+  "lang": "pt-BR",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#E8E9E4",
+  "theme_color": "#131514",
+  "icons": [
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}
